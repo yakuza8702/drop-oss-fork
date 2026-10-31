@@ -150,13 +150,7 @@ struct ArchiveEntryReader {
 }
 
 impl ArchiveEntryReader {
-    fn new(
-        child: Child,
-        stdout: ChildStdout,
-        name: String,
-        start: u64,
-        end: u64,
-    ) -> Self {
+    fn new(child: Child, stdout: ChildStdout, name: String, start: u64, end: u64) -> Self {
         Self {
             child,
             stdout,
@@ -201,7 +195,10 @@ impl AsyncRead for ArchiveEntryReader {
                 me.done = true;
                 return Poll::Ready(Err(std::io::Error::new(
                     std::io::ErrorKind::UnexpectedEof,
-                    format!("archive entry `{}` ended before offset {}", me.name, me.skip),
+                    format!(
+                        "archive entry `{}` ended before offset {}",
+                        me.name, me.skip
+                    ),
                 )));
             }
 

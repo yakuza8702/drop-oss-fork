@@ -123,7 +123,10 @@ mod archive_compat {
             ("readme.txt".to_string(), b"hello drop\n".to_vec()),
             ("big.bin".to_string(), lcg(1, 3 * 1024 * 1024)),
             ("mid.dat".to_string(), lcg(2, 200 * 1024)),
-            ("sp ace-\u{fc}n\u{ef}code.bin".to_string(), lcg(3, 40 * 1024)),
+            (
+                "sp ace-\u{fc}n\u{ef}code.bin".to_string(),
+                lcg(3, 40 * 1024),
+            ),
             ("sub/nested.bin".to_string(), lcg(4, 12 * 1024)),
         ];
 
@@ -144,7 +147,10 @@ mod archive_compat {
             .args(expected.iter().map(|(name, _)| name))
             .status()
             .expect("failed to run 7z");
-        assert!(status.success(), "[{label}] 7z failed to create the archive");
+        assert!(
+            status.success(),
+            "[{label}] 7z failed to create the archive"
+        );
 
         Fixture {
             root,
@@ -165,7 +171,10 @@ mod archive_compat {
         start: u64,
         end: u64,
     ) -> Vec<u8> {
-        let mut reader = backend.reader(file, start, end).await.expect("reader() failed");
+        let mut reader = backend
+            .reader(file, start, end)
+            .await
+            .expect("reader() failed");
         // 4 KiB: the buffer size the download server uses. A reader that ignores
         // the caller's remaining capacity blows up here.
         let mut buf = vec![0u8; 4096];
@@ -183,10 +192,7 @@ mod archive_compat {
     #[tokio::test]
     async fn archive_backend_reads_exact_bytes() {
         for (label, pack_args) in [
-            (
-                "non-solid-256k",
-                &["-ms=off", "-md=256k", "-mfb=64"][..],
-            ),
+            ("non-solid-256k", &["-ms=off", "-md=256k", "-mfb=64"][..]),
             ("solid-16g-64m", &["-ms=16g", "-md=64m", "-mfb=64"][..]),
         ] {
             let fx = fixture(label, pack_args);
@@ -210,7 +216,10 @@ mod archive_compat {
                 .collect();
             want.sort();
 
-            assert_eq!(got, want, "[{label}] file list / sizes differ from the source tree");
+            assert_eq!(
+                got, want,
+                "[{label}] file list / sizes differ from the source tree"
+            );
 
             for (name, bytes) in &fx.expected {
                 let file = files
@@ -264,7 +273,11 @@ mod archive_compat {
         .await
         .expect("manifest generation failed");
 
-        let want: u64 = fx.expected.iter().map(|(_, bytes)| bytes.len() as u64).sum();
+        let want: u64 = fx
+            .expected
+            .iter()
+            .map(|(_, bytes)| bytes.len() as u64)
+            .sum();
         assert_eq!(
             manifest.size, want,
             "manifest size must be the uncompressed total, not the archive size"
@@ -299,7 +312,7 @@ mod archive_listing_probe {
     use std::path::PathBuf;
     use std::process::Command;
 
-    use crate::versions::{create_backend_constructor, types::VersionBackend};
+    use crate::versions::create_backend_constructor;
 
     fn sevenzip() -> PathBuf {
         for dir in std::env::split_paths(&std::env::var_os("PATH").unwrap()) {
@@ -354,6 +367,9 @@ mod archive_listing_probe {
         probe("space", &["has space.txt", "second.txt"]);
         probe("unicode", &["\u{fc}n\u{ef}code.txt", "second.txt"]);
         probe("nested", &["sub/nested.txt", "second.txt"]);
-        probe("space+unicode", &["sp ace-\u{fc}n\u{ef}code.txt", "second.txt"]);
+        probe(
+            "space+unicode",
+            &["sp ace-\u{fc}n\u{ef}code.txt", "second.txt"],
+        );
     }
 }

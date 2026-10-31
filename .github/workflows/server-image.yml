@@ -118,8 +118,10 @@ jobs:
             BUILD_GIT_REF=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          provenance: mode=max
-          sbom: true
+          # attestations only exist for registry exports, so skip them when the
+          # build is only loaded into the local daemon
+          provenance: ${{ inputs.push && 'mode=max' || 'false' }}
+          sbom: ${{ inputs.push }}
 
       - name: Export image tarball
         if: ${{ !inputs.push && steps.tags.outputs.single_platform == 'true' }}

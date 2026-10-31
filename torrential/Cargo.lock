@@ -616,7 +616,6 @@ dependencies = [
  "getrandom 0.3.4",
  "hex",
  "humansize",
- "libarchive-drop",
  "rcgen",
  "ring",
  "serde",
@@ -1197,24 +1196,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
-name = "libarchive-drop"
-version = "0.1.1"
-dependencies = [
- "libarchive3-sys",
- "libc",
-]
-
-[[package]]
-name = "libarchive3-sys"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3cd3beae8f59a4c7a806523269b5392037577c150446e88d684dfa6de6031ca7"
-dependencies = [
- "libc",
- "pkg-config",
-]
-
-[[package]]
 name = "libc"
 version = "0.2.178"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1452,12 +1433,6 @@ name = "pin-utils"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
-
-[[package]]
-name = "pkg-config"
-version = "0.3.32"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7edddbd0b52d732b21ad9a5fab5c704c14cd949e5e9a1ec5929a24fded1b904c"
 
 [[package]]
 name = "plotters"

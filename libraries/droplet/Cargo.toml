@@ -30,7 +30,6 @@ uuid = { version = "1.19.0", features = ["v4"] }
 sha2 = "0.10.9"
 futures = "0.3.31"
 getrandom = "0.3.4"
-libarchive-drop = { version = "*", path = "../libarchive" }
 speedometer = "0.2.2"
 test-generator = "0.3.1"
 

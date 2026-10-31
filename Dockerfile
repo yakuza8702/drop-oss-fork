@@ -1,8 +1,9 @@
 # syntax=docker/dockerfile:1
 
-# Pinned to bookworm so the glibc here matches the torrential build stage
-# and the libarchive runtime package is named `libarchive13` (trixie renames it to libarchive13t64).
-FROM node:lts-bookworm-slim AS base
+# Pinned to bookworm so the glibc here matches the torrential build stage.
+# Node 24 is pinned explicitly: the moving `lts` tag is now Node 25, which no
+# longer bundles corepack, and the base stage runs `corepack enable`.
+FROM node:24-bookworm-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
@@ -24,11 +25,9 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 ### BUILD TORRENTIAL
 # Bookworm-pinned to match the runtime image's glibc (a trixie build would not run on bookworm).
 FROM rustlang/rust:nightly-bookworm-slim AS torrential-build
-## libarchive-dev + pkg-config let libarchive3-sys link libarchive dynamically (glibc).
-## protobuf-compiler is kept for parity (torrential's build.rs uses a vendored protoc).
+## torrential no longer links libarchive (the archive backend shells out to the 7z
+## CLI instead), so only protobuf-compiler is needed here.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    pkg-config \
-    libarchive-dev \
     protobuf-compiler \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /build
@@ -73,13 +72,12 @@ RUN rm -rf /app/torrential
 
 # RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn add --network-timeout 1000000 --no-lockfile --ignore-scripts prisma@6.11.1
 ## runtime deps:
-##  - libarchive13: torrential now links libarchive dynamically (glibc build)
-##  - p7zip-full: provides the 7z CLI
+##  - p7zip-full: provides the 7z CLI - used by the archive backend to list and
+##    stream entries out of .7z/.zip/.rar/... versions
 ##  - nginx: front-end proxy
 ##  - openssl + ca-certificates: required by Prisma's query engine on Debian
 ## pnpm itself is provided by corepack (enabled in the base stage)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libarchive13 \
     p7zip-full \
     nginx \
     openssl \
